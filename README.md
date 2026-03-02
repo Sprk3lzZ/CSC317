@@ -134,4 +134,35 @@ It became **more nuanced**. The core remains simple (submit, approve, reimburse)
 
 ---
 
+---
+
+## Running the Project
+
+The project uses **Next.js** (frontend) and **Rust/Axum** (backend) with Docker.
+
+### With Docker Compose
+
+```bash
+docker compose up -d
+```
+
+- **Frontend:** http://localhost:3080
+- **Backend API:** http://localhost:8000/api/health
+
+### Without Docker
+
+**Backend:**
+```bash
+cd backend && cargo run --release
+```
+
+**Frontend:**
+```bash
+cd frontend && npm install && npm run dev
+```
+
+Set `NEXT_PUBLIC_API_URL=http://localhost:8000` when running the frontend separately.
+
+---
+
 *CSC 317 Project – Week 2 – Data Exploration*
