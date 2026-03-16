@@ -5,6 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: "sqlite:/app/data/expenseflow.db"
+    volumes:
+      - backend-data:/app/data
     restart: unless-stopped
 
   frontend:
@@ -18,3 +22,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  backend-data:
