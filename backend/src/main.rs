@@ -11,7 +11,7 @@ use axum::{
 use sqlx::SqlitePool;
 use std::net::SocketAddr;
 use axum::http::header::{AUTHORIZATION, CONTENT_TYPE};
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -39,11 +39,28 @@ async fn main() {
 
     let state = AppState { db: pool };
 
+    let mut allowed_origins: Vec<axum::http::HeaderValue> = vec![
+        "http://localhost:3080".parse().unwrap(),
+        "http://localhost:3000".parse().unwrap(),
+    ];
+
+    if let Ok(extra) = std::env::var("ALLOWED_ORIGINS") {
+        for origin in extra.split(',') {
+            let origin = origin.trim();
+            if origin.is_empty() {
+                continue;
+            }
+            match origin.parse::<axum::http::HeaderValue>() {
+                Ok(val) => allowed_origins.push(val),
+                Err(_) => tracing::warn!("Skipping invalid ALLOWED_ORIGINS entry: {}", origin),
+            }
+        }
+    }
+
+    tracing::info!("CORS allowed origins: {:?}", allowed_origins);
+
     let cors = CorsLayer::new()
-        .allow_origin([
-            "http://localhost:3080".parse().unwrap(),
-            "http://localhost:3000".parse().unwrap(),
-        ])
+        .allow_origin(AllowOrigin::list(allowed_origins))
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE])
         .allow_credentials(true);
