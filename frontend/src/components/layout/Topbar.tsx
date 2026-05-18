@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Bell, Sun, Moon, ChevronDown, LogOut, User, Settings } from "lucide-react";
-import { useTheme } from "@/components/ThemeProvider";
+import { Search, Bell, ChevronDown, LogOut, User, Settings } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
-import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MOCK_NOTIFICATIONS = [
   { id: 1, message: "Your expense #EXP-042 was approved", time: "2m ago", read: false },
@@ -12,8 +11,13 @@ const MOCK_NOTIFICATIONS = [
   { id: 3, message: "Monthly report is ready", time: "3h ago", read: true },
 ];
 
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -6, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.15, ease: "easeOut" as const } },
+  exit: { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.1 } },
+};
+
 export function Topbar() {
-  const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -35,160 +39,122 @@ export function Topbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const initials = user ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase() : "??";
+
   return (
-    <header
-      className="flex h-14 items-center gap-4 border-b px-4 shrink-0"
-      style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
-    >
+    <header className="flex h-14 items-center gap-4 border-b border-zinc-100 bg-white px-4 shrink-0">
       {/* Search */}
-      <div
-        className="flex flex-1 items-center gap-2 rounded-lg border px-3 h-8 max-w-sm"
-        style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}
-      >
-        <Search size={13} style={{ color: "var(--text-muted)" }} />
+      <div className="flex flex-1 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 h-8 max-w-xs transition-colors focus-within:border-zinc-400 focus-within:bg-white">
+        <Search size={13} className="text-zinc-400" />
         <input
           type="text"
           placeholder="Search expenses..."
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-[color:var(--text-muted)]"
-          style={{ color: "var(--text-primary)" }}
+          className="flex-1 bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
         />
-        <kbd
-          className="hidden sm:flex items-center gap-0.5 rounded px-1.5 text-[10px] font-medium"
-          style={{ background: "var(--bg-overlay)", color: "var(--text-muted)" }}
-        >
+        <kbd className="hidden sm:flex items-center gap-0.5 rounded px-1.5 text-[10px] font-medium text-zinc-400 bg-zinc-100">
           ⌘K
         </kbd>
       </div>
 
-      <div className="flex items-center gap-1 ml-auto">
-        {/* Theme toggle */}
-        <button
-          onClick={toggle}
-          className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: "var(--text-secondary)" }}
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-        </button>
-
+      <div className="flex items-center gap-0.5 ml-auto">
         {/* Notifications */}
         <div ref={notifRef} className="relative">
           <button
             onClick={() => setShowNotifications((v) => !v)}
-            className="relative flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-white/5"
-            style={{ color: "var(--text-secondary)" }}
+            className="relative flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
             aria-label="Notifications"
           >
             <Bell size={15} />
             {unreadCount > 0 && (
-              <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-[color:var(--primary-500)]" />
+              <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-zinc-900" />
             )}
           </button>
 
-          {showNotifications && (
-            <div
-              className="absolute right-0 top-10 z-50 w-80 rounded-xl border shadow-lg overflow-hidden"
-              style={{
-                background: "var(--bg-elevated)",
-                borderColor: "var(--border-strong)",
-                boxShadow: "var(--shadow-md)",
-              }}
-            >
-              <div
-                className="flex items-center justify-between px-4 py-3 border-b"
-                style={{ borderColor: "var(--border)" }}
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute right-0 top-10 z-50 w-80 rounded-xl border border-zinc-200 bg-white shadow-md overflow-hidden"
               >
-                <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-                  Notifications
-                </span>
-                {unreadCount > 0 && (
-                  <span
-                    className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                    style={{ background: "var(--primary-500)" }}
-                  >
-                    {unreadCount} new
-                  </span>
-                )}
-              </div>
-              <div className="divide-y" style={{ borderColor: "var(--border)" }}>
-                {MOCK_NOTIFICATIONS.map((n) => (
-                  <div
-                    key={n.id}
-                    className={cn("flex gap-3 px-4 py-3", !n.read && "bg-[color:var(--primary-500)]/5")}
-                  >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
+                  <span className="text-sm font-semibold text-zinc-900">Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="rounded-full bg-zinc-900 px-2 py-0.5 text-xs font-medium text-white">
+                      {unreadCount} new
+                    </span>
+                  )}
+                </div>
+                <div className="divide-y divide-zinc-100">
+                  {MOCK_NOTIFICATIONS.map((n) => (
                     <div
-                      className={cn(
-                        "mt-1 h-2 w-2 shrink-0 rounded-full",
-                        n.read ? "bg-transparent" : "bg-[color:var(--primary-500)]"
-                      )}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>
-                        {n.message}
-                      </p>
-                      <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>
-                        {n.time}
-                      </p>
+                      key={n.id}
+                      className={`flex gap-3 px-4 py-3 ${!n.read ? "bg-zinc-50" : ""}`}
+                    >
+                      <div
+                        className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${n.read ? "bg-transparent" : "bg-zinc-900"}`}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-zinc-800 leading-snug">{n.message}</p>
+                        <p className="mt-0.5 text-xs text-zinc-400">{n.time}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* User menu */}
         <div ref={userRef} className="relative ml-1">
           <button
             onClick={() => setShowUserMenu((v) => !v)}
-            className="flex h-8 items-center gap-2 rounded-lg px-2 transition-colors hover:bg-white/5"
-            style={{ color: "var(--text-secondary)" }}
+            className="flex h-8 items-center gap-2 rounded-lg px-2 text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
           >
-            <div
-              className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold text-white"
-              style={{ background: "var(--primary-gradient)" }}
-            >
-              {user ? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase() : "??"}
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white">
+              {initials}
             </div>
-            <span className="hidden sm:block text-sm" style={{ color: "var(--text-primary)" }}>
+            <span className="hidden sm:block text-sm font-medium text-zinc-700">
               {user ? `${user.first_name} ${user.last_name}` : ""}
             </span>
-            <ChevronDown size={12} />
+            <ChevronDown size={12} className="text-zinc-400" />
           </button>
 
-          {showUserMenu && (
-            <div
-              className="absolute right-0 top-10 z-50 w-48 rounded-xl border shadow-lg overflow-hidden py-1"
-              style={{
-                background: "var(--bg-elevated)",
-                borderColor: "var(--border-strong)",
-                boxShadow: "var(--shadow-md)",
-              }}
-            >
-              {[
-                { icon: User, label: "Profile" },
-                { icon: Settings, label: "Settings" },
-              ].map(({ icon: Icon, label }) => (
-                <button
-                  key={label}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-white/5"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  <Icon size={14} />
-                  {label}
-                </button>
-              ))}
-              <div className="my-1 h-px mx-3" style={{ background: "var(--border)" }} />
-              <button
-                onClick={logout}
-                className="flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-white/5"
-                style={{ color: "var(--status-rejected)" }}
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute right-0 top-10 z-50 w-48 rounded-xl border border-zinc-200 bg-white shadow-md overflow-hidden py-1"
               >
-                <LogOut size={14} />
-                Sign out
-              </button>
-            </div>
-          )}
+                {[
+                  { icon: User, label: "Profile" },
+                  { icon: Settings, label: "Settings" },
+                ].map(({ icon: Icon, label }) => (
+                  <button
+                    key={label}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+                  >
+                    <Icon size={14} />
+                    {label}
+                  </button>
+                ))}
+                <div className="my-1 h-px mx-3 bg-zinc-100" />
+                <button
+                  onClick={logout}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <LogOut size={14} />
+                  Sign out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </header>

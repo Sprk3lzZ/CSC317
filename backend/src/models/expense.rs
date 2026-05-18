@@ -15,6 +15,10 @@ pub struct Expense {
     pub reviewed_by: Option<String>,
     pub reviewed_at: Option<String>,
     pub rejection_reason: Option<String>,
+    pub departure_city: Option<String>,
+    pub arrival_city: Option<String>,
+    pub distance_km: Option<f64>,
+    pub distance_unit: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -28,6 +32,10 @@ pub struct CreateExpenseRequest {
     pub expense_date: String,
     pub receipt_path: Option<String>,
     pub notes: Option<String>,
+    pub departure_city: Option<String>,
+    pub arrival_city: Option<String>,
+    pub distance_km: Option<f64>,
+    pub distance_unit: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -39,6 +47,10 @@ pub struct UpdateExpenseRequest {
     pub expense_date: Option<String>,
     pub receipt_path: Option<String>,
     pub notes: Option<String>,
+    pub departure_city: Option<String>,
+    pub arrival_city: Option<String>,
+    pub distance_km: Option<f64>,
+    pub distance_unit: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

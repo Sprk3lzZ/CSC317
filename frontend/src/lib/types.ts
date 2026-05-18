@@ -41,6 +41,11 @@ export interface CreateExpensePayload {
   expense_date: string;
   receipt_path?: string | null;
   notes?: string | null;
+  // mileage extras — passed through from /api/mileage/calculate
+  departure_city?: string | null;
+  arrival_city?: string | null;
+  distance?: number | null;
+  distance_unit?: "km" | "miles" | null;
 }
 
 // ── User ──────────────────────────────────────────────────────────────────────
@@ -90,4 +95,30 @@ export interface CategorySpend {
   category: string;
   amount: number;
   count: number;
+}
+
+// ── Mileage ───────────────────────────────────────────────────────────────────
+
+/** GET/PUT /api/settings/mileage */
+export interface MileageSettings {
+  rate: number;
+  currency: string;
+  unit: "km" | "miles";
+}
+
+/** POST /api/mileage/calculate body */
+export interface MileageCalculatePayload {
+  from: string;
+  to: string;
+}
+
+/** POST /api/mileage/calculate response */
+export interface MileageCalculateResult {
+  distance: number;
+  unit: "km" | "miles";
+  rate: number;
+  currency: string;
+  amount: number;
+  from_resolved: string;
+  to_resolved: string;
 }

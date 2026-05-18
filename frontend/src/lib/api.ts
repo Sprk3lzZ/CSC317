@@ -16,6 +16,9 @@ import type {
   RegisterPayload,
   AuthResponse,
   CreateExpensePayload,
+  MileageSettings,
+  MileageCalculatePayload,
+  MileageCalculateResult,
 } from "./types";
 import {
   MOCK_EXPENSES,
@@ -247,4 +250,34 @@ export async function getUsers(): Promise<User[]> {
 
 export async function getHealth(): Promise<{ status: string }> {
   return apiFetch("/api/health");
+}
+
+// ── Mileage ───────────────────────────────────────────────────────────────────
+
+export async function getMileageSettings(): Promise<MileageSettings> {
+  try {
+    return await apiFetch<MileageSettings>("/api/settings/mileage");
+  } catch (err) {
+    if (isNetworkError(err)) return Promise.resolve({ rate: 0.35, currency: "EUR", unit: "km" });
+    throw err;
+  }
+}
+
+export async function saveMileageSettings(settings: Partial<MileageSettings> & { rate: number }): Promise<MileageSettings> {
+  try {
+    return await apiFetch<MileageSettings>("/api/settings/mileage", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
+  } catch (err) {
+    if (isNetworkError(err)) return Promise.resolve({ rate: settings.rate, currency: settings.currency ?? "EUR", unit: settings.unit ?? "km" });
+    throw err;
+  }
+}
+
+export async function calculateMileage(payload: MileageCalculatePayload): Promise<MileageCalculateResult> {
+  return apiFetch<MileageCalculateResult>("/api/mileage/calculate", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }

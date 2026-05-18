@@ -64,6 +64,11 @@ async fn main() {
         .route("/api/expenses/:id", delete(handlers::expenses::delete_expense))
         .route("/api/expenses/:id/approve", put(handlers::expenses::approve_expense))
         .route("/api/expenses/:id/reject", put(handlers::expenses::reject_expense))
+        // Mileage calculation
+        .route("/api/mileage/calculate", post(handlers::mileage::calculate_mileage))
+        // Settings
+        .route("/api/settings/mileage", get(handlers::settings::get_mileage_settings))
+        .route("/api/settings/mileage", put(handlers::settings::update_mileage_settings))
         // Users
         .route("/api/users", get(handlers::users::list_users))
         .route("/api/users/:id", get(handlers::users::get_user))

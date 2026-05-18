@@ -34,31 +34,24 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 64 : 220 }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="relative flex h-full flex-col border-r overflow-hidden shrink-0"
-      style={{
-        background: "var(--bg-surface)",
-        borderColor: "var(--border)",
-      }}
+      animate={{ width: collapsed ? 56 : 216 }}
+      transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+      className="relative flex h-full flex-col border-r overflow-hidden shrink-0 bg-white"
+      style={{ borderColor: "var(--border)" }}
     >
       {/* Logo */}
-      <div className="flex h-14 items-center px-4 gap-3 shrink-0">
-        <div
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: "var(--primary-gradient)" }}
-        >
-          <Wallet size={16} className="text-white" />
+      <div className="flex h-14 items-center px-3.5 gap-3 shrink-0">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-900">
+          <Wallet size={14} className="text-white" />
         </div>
         <AnimatePresence initial={false}>
           {!collapsed && (
             <motion.span
-              initial={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: -6 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -8 }}
+              exit={{ opacity: 0, x: -6 }}
               transition={{ duration: 0.15 }}
-              className="text-sm font-semibold whitespace-nowrap"
-              style={{ color: "var(--text-primary)" }}
+              className="text-sm font-semibold whitespace-nowrap tracking-tight text-zinc-900"
             >
               ExpenseFlow
             </motion.span>
@@ -66,58 +59,57 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </AnimatePresence>
       </div>
 
-      {/* Divider */}
-      <div className="mx-3 h-px shrink-0" style={{ background: "var(--border)" }} />
+      <div className="mx-3 h-px shrink-0 bg-zinc-100" />
 
       {/* Nav */}
-      <nav className="flex flex-col gap-1 px-2 py-3 flex-1">
+      <nav className="flex flex-col gap-0.5 px-2 py-3 flex-1">
         {visibleItems.map(({ href, icon: Icon, label }) => {
           const active = pathname.startsWith(href);
           return (
-            <Link
+            <motion.div
               key={href}
-              href={href}
-              className={cn(
-                "group relative flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm transition-colors",
-                active
-                  ? "text-white"
-                  : "hover:bg-white/5"
-              )}
-              style={
-                active
-                  ? { background: "var(--primary-gradient)", color: "white" }
-                  : { color: "var(--text-secondary)" }
-              }
+              whileHover={active ? {} : { scale: 1.02 }}
+              transition={{ duration: 0.12 }}
             >
-              <Icon size={16} className="shrink-0" />
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -6 }}
-                    transition={{ duration: 0.15 }}
-                    className="whitespace-nowrap"
-                  >
-                    {label}
-                  </motion.span>
+              <Link
+                href={href}
+                className={cn(
+                  "group relative flex h-8 items-center gap-2.5 rounded-lg px-2 text-sm transition-colors duration-150",
+                  active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
                 )}
-              </AnimatePresence>
+              >
+                {active && (
+                  <motion.span
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 rounded-lg bg-zinc-900"
+                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                  />
+                )}
+                {!active && (
+                  <span className="absolute inset-0 rounded-lg transition-colors duration-150 group-hover:bg-zinc-50" />
+                )}
+                <Icon size={15} className="relative shrink-0 z-10" />
+                <AnimatePresence initial={false}>
+                  {!collapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -4 }}
+                      transition={{ duration: 0.12 }}
+                      className="relative z-10 whitespace-nowrap font-medium text-[13px]"
+                    >
+                      {label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
 
-              {/* Tooltip when collapsed */}
-              {collapsed && (
-                <div
-                  className="pointer-events-none absolute left-full ml-2 z-50 rounded-md px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg"
-                  style={{
-                    background: "var(--bg-overlay)",
-                    color: "var(--text-primary)",
-                    border: "1px solid var(--border-strong)",
-                  }}
-                >
-                  {label}
-                </div>
-              )}
-            </Link>
+                {collapsed && (
+                  <div className="pointer-events-none absolute left-full ml-2.5 z-50 rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs font-medium text-zinc-900 opacity-0 shadow-sm group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    {label}
+                  </div>
+                )}
+              </Link>
+            </motion.div>
           );
         })}
       </nav>
@@ -125,11 +117,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Collapse toggle */}
       <button
         onClick={onToggle}
-        className="flex h-10 w-full items-center justify-center border-t transition-colors hover:bg-white/5"
-        style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+        className="flex h-10 w-full items-center justify-center border-t border-zinc-100 text-zinc-400 transition-colors hover:bg-zinc-50 hover:text-zinc-700"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
-        {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+        {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
       </button>
     </motion.aside>
   );

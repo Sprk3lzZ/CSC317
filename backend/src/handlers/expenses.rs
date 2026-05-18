@@ -112,8 +112,8 @@ pub async fn create_expense(
     let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
     sqlx::query(
-        "INSERT INTO expenses (id, user_id, title, amount, currency, category, expense_date, status, receipt_path, notes, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)",
+        "INSERT INTO expenses (id, user_id, title, amount, currency, category, expense_date, status, receipt_path, notes, departure_city, arrival_city, distance_km, distance_unit, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?)",
     )
     .bind(&id)
     .bind(&claims.sub)
@@ -124,6 +124,10 @@ pub async fn create_expense(
     .bind(&req.expense_date)
     .bind(&req.receipt_path)
     .bind(&req.notes)
+    .bind(&req.departure_city)
+    .bind(&req.arrival_city)
+    .bind(req.distance_km)
+    .bind(&req.distance_unit)
     .bind(&now)
     .bind(&now)
     .execute(&state.db)
@@ -198,6 +202,10 @@ pub async fn update_expense(
             expense_date = COALESCE(?, expense_date),
             receipt_path = COALESCE(?, receipt_path),
             notes = COALESCE(?, notes),
+            departure_city = COALESCE(?, departure_city),
+            arrival_city = COALESCE(?, arrival_city),
+            distance_km = COALESCE(?, distance_km),
+            distance_unit = COALESCE(?, distance_unit),
             updated_at = ?
          WHERE id = ?",
     )
@@ -208,6 +216,10 @@ pub async fn update_expense(
     .bind(&req.expense_date)
     .bind(&req.receipt_path)
     .bind(&req.notes)
+    .bind(&req.departure_city)
+    .bind(&req.arrival_city)
+    .bind(req.distance_km)
+    .bind(&req.distance_unit)
     .bind(&now)
     .bind(&id)
     .execute(&state.db)
